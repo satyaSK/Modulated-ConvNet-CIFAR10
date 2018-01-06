@@ -109,7 +109,7 @@ accuracy_operation = get_accuracy(logits,Y)
 with tf.Session() as sess:
     # Train the Model
 	sess.run(tf.global_variables_initializer())
-	writer = tf.summary.FileWriter("./Visualize", sess.graph)
+	writer = tf.summary.FileWriter("./visualize", sess.graph)
 	num_batches = int(cifar10_input.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN/batch_size) 
 	X_operation, Y_operation = distorted_inputs()# helper function from cifar10.py
 	val_images, val_labels = inputs()#helper function from cifar10.py
