@@ -1,16 +1,14 @@
-import tensorflow as tf 
-import cifar10_input #This is a helper file I got from the offcial tensorflow website
-#It helps making and loading of batches
-#def inputs
-#def distorted_inputs()
-import cifar10 #Also this a helper file for downloading and storing the CIFAR-10 dataset
+import tensorflow as tf
+import cifar10_input #This is a helper file I got from the offcial tensorflow website which I've linked in the README(loading data batch-wise)
+import cifar10 #This is a helper file I got from the offcial tensorflow website which I've linked in the README(downloading & storing data)
 import os
 import numpy as np
 import time
-#Get the data
+
+#Get da Data
 cifar10.maybe_download_and_extract()
 
-#define the hyperparameters
+#Define hyperparameters
 batch_size = 128
 epochs = 10
 learning_rate = 0.001
@@ -23,7 +21,7 @@ with tf.name_scope("DATA"):
 	X = tf.placeholder(tf.float32, shape=[batch_size,l,b,channels], name='X')
 	Y = tf.placeholder(tf.float32, shape=[batch_size,10], name='Y')
 
-#----------------HELPER CODE------------------
+#----------------HELPER CODE(from cifar10_input.py)------------------
 def inputs(eval_data=True):
   data_dir = os.path.join('data\cifar10_data', 'cifar-10-batches-bin')
   return cifar10_input.inputs(eval_data=eval_data, data_dir=data_dir, batch_size=batch_size)
@@ -39,7 +37,8 @@ def conv(inputs, filter_shape, bias_shape, padding='SAME'):
 	filters = tf.get_variable('filter', shape=filter_shape, initializer=filter_initializer)
 	biases = tf.get_variable('biases', shape= bias_shape, initializer=bias_initializer)
 	convolutions = tf.nn.bias_add(tf.nn.conv2d(inputs, filters, strides=[1,1,1,1], padding=padding), biases)
-	activated = tf.nn.relu(convolutions)
+	normIt = tf.nn.lrn(convolutions, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name='norm1')# Added normalization
+	activated = tf.nn.relu(normIt)
 	return activated
 
 def max_pool(feature_maps, ksize=[1,2,2,1] ,strides=[1,2,2,1],padding='SAME'):
@@ -112,8 +111,8 @@ with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	writer = tf.summary.FileWriter("./Visualize", sess.graph)
 	num_batches = int(cifar10_input.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN/batch_size) 
-	X_operation, Y_operation = distorted_inputs()
-	val_images, val_labels = inputs()
+	X_operation, Y_operation = distorted_inputs()# helper function from cifar10.py
+	val_images, val_labels = inputs()#helper function from cifar10.py
 	print("\nGood To Go - Training Starts\n")
 	for i in range(epochs+1):
 	 	epoch_loss = 0
